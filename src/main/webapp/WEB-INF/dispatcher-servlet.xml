@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/mvc
+           http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!-- Simple annotation-driven config -->
+    <mvc:annotation-driven/>
+
+    <!-- Component scanning - ADD config package -->
+    <context:component-scan base-package="com.usermanagement.controller"/>
+    <context:component-scan base-package="com.usermanagement.config"/>
+    <context:component-scan base-package="com.usermanagement.exception"/>
+
+    <!-- JSP View Resolver -->
+    <bean id="viewResolver"
+          class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/views/"/>
+        <property name="suffix" value=".jsp"/>
+        <property name="order" value="1"/>
+    </bean>
+
+    <!-- Static Resources -->
+    <mvc:resources mapping="/resources/**" location="/resources/"/>
+
+    <!-- Controller Beans -->
+    <bean id="userRestController"
+          class="com.usermanagement.controller.UserRestController">
+        <property name="userService" ref="userService"/>
+    </bean>
+
+    <bean id="userViewController"
+          class="com.usermanagement.controller.UserViewController">
+        <property name="userService" ref="userService"/>
+    </bean>
+
+    <!-- Default Servlet Handler -->
+    <mvc:default-servlet-handler/>
+
+</beans>
