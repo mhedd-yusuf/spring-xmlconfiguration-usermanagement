@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: user-management-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: userdb
+      # Optional: create app user
+      # MYSQL_USER: ove123
+      # MYSQL_PASSWORD: ove123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpassword"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: --default-authentication-plugin=mysql_native_password
+
+  liberty:
+    image: icr.io/appcafe/open-liberty:full-java11-openj9-ubi
+    container_name: user-management-liberty
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      # ✅ Make sure these match your MySQL setup
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: userdb
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+      WLP_LOGGING_CONSOLE_FORMAT: simple
+      WLP_LOGGING_CONSOLE_LOGLEVEL: INFO
+    ports:
+      - "9080:9080"
+      - "9443:9443"
+    volumes:
+      # Liberty config
+      - ./docker/liberty/server.xml:/config/server.xml
+      - ./docker/liberty/jvm.options:/config/jvm.options
+
+      # ✅ Application WAR
+      - ./docker/apps:/config/apps
+
+      # ✅ MySQL driver - THIS PATH MUST MATCH server.xml
+      - ./docker/lib:/opt/ibm/wlp/usr/shared/resources/mysql
+
+      # Logs
+      - ./docker/logs:/logs
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local

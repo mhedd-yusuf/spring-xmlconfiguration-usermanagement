@@ -71,6 +71,9 @@
                 <prop key="hibernate.current_session_context_class">
                     org.springframework.orm.hibernate5.SpringSessionContext
                 </prop>
+                <!-- ✅ CRITICAL: Disable JTA and use JDBC transactions -->
+                <prop key="hibernate.transaction.coordinator_class">jdbc</prop>
+                <prop key="hibernate.transaction.jta.platform">org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform</prop>
                 <prop key="hibernate.enable_lazy_load_no_trans">false</prop>
                 <!-- ADD: MySQL specific optimizations -->
                 <prop key="hibernate.connection.CharSet">utf8mb4</prop>

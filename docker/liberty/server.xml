@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server description="User Management Liberty Server">
+
+    <featureManager>
+        <feature>servlet-4.0</feature>
+        <feature>jsp-2.3</feature>
+        <feature>jstl-1.2</feature>
+        <feature>jdbc-4.2</feature>
+        <feature>beanValidation-2.0</feature>
+        <feature>jsonp-1.1</feature>
+    </featureManager>
+
+    <httpEndpoint id="defaultHttpEndpoint"
+                  host="*"
+                  httpPort="9080"
+                  httpsPort="9443">
+        <accessLogging filepath="${server.output.dir}/logs/http_access.log"
+                       logFormat='%h %u %{t}W "%r" %s %b %D %{R}W'/>
+    </httpEndpoint>
+
+    <!-- ✅ FIX: Use absolute path -->
+    <webApplication id="userManagement"
+                    location="/config/apps/user-management.war"
+                    contextRoot="/user-management">
+
+        <classloader delegation="parentLast">
+            <privateLibrary>
+                <!-- ✅ FIX: Match the docker-compose mount path -->
+                <fileset dir="/opt/ibm/wlp/usr/shared/resources/mysql" includes="*.jar"/>
+            </privateLibrary>
+        </classloader>
+    </webApplication>
+
+    <dataSource id="userDataSource"
+                jndiName="jdbc/userdb"
+                statementCacheSize="30"
+                connectionManagerRef="conMgr">
+
+        <jdbcDriver libraryRef="mysqlLib"/>
+
+        <properties serverName="${DB_HOST}"
+                    portNumber="${DB_PORT}"
+                    databaseName="${DB_NAME}"
+                    user="${DB_USER}"
+                    password="${DB_PASSWORD}"
+                    useSSL="false"
+                    serverTimezone="UTC"/>
+
+        <connectionManager maxPoolSize="20"
+                           minPoolSize="5"
+                           id="conMgr"
+                           agedTimeout="30m"
+                           maxIdleTime="30m"
+                           connectionTimeout="30s"
+                           reapTime="3m"/>
+    </dataSource>
+
+    <!-- ✅ FIX: Match the docker-compose mount path -->
+    <library id="mysqlLib">
+        <fileset dir="/opt/ibm/wlp/usr/shared/resources/mysql" includes="mysql-connector-java*.jar"/>
+    </library>
+
+    <logging
+            consoleLogLevel="INFO"
+            consoleFormat="simple"
+            consoleSource="message,trace,accessLog,ffdc,audit"
+            traceSpecification="*=info:com.usermanagement.*=debug:org.springframework.*=info:org.hibernate.*=info"
+            maxFileSize="50"
+            maxFiles="10"
+            traceFileName="trace.log"
+            messageFileName="messages.log"/>
+
+    <!-- ✅ FIX: Update defaults to match docker-compose -->
+    <variable name="DB_HOST" defaultValue="mysql"/>
+    <variable name="DB_PORT" defaultValue="3306"/>
+    <variable name="DB_NAME" defaultValue="userdb"/>
+    <variable name="DB_USER" defaultValue="root"/>
+    <variable name="DB_PASSWORD" defaultValue="rootpassword"/>
+
+</server>

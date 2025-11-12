@@ -1,0 +1,4 @@
+# Create placeholder files to preserve empty directories
+touch docker/apps/.gitkeep
+touch docker/lib/.gitkeep
+touch docker/logs/.gitkeep

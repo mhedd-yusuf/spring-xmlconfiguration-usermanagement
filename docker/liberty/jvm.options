@@ -1,0 +1,19 @@
+# Heap size, Sets minimum heap to 512MB, maximum to 1GB
+-Xms512m
+-Xmx1024m
+
+# Garbage Collection, Uses G1 garbage collector for better performance
+-XX:+UseG1GC
+-XX:MaxGCPauseMillis=200
+
+# Debugging (uncomment if needed)
+# -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:7777
+
+# Timezone, Sets timezone and encoding
+-Duser.timezone=UTC
+
+# File encoding
+-Dfile.encoding=UTF-8
+
+# Spring profiles (optional)
+# -Dspring.profiles.active=production
